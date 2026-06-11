@@ -244,7 +244,7 @@ open class YouTubePlayerView: UIView, WKNavigationDelegate {
     fileprivate func loadWebViewWithParameters(_ parameters: YouTubePlayerParameters) {
         
         // Get HTML from player file in bundle
-        let rawHTMLString = htmlStringWithFilePath(playerHTMLPath())!
+        let rawHTMLString = htmlStringWithFileURL(playerHTMLURL())!
         
         // Get JSON serialized parameters string
         let jsonParameters = serializedJSON(parameters as AnyObject)!
@@ -256,24 +256,22 @@ open class YouTubePlayerView: UIView, WKNavigationDelegate {
         webView.loadHTMLString(htmlString, baseURL: URL(string: baseURL))
     }
     
-    fileprivate func playerHTMLPath() -> String {
-        return Bundle(for: YouTubePlayerView.self).path(forResource: "YTPlayer", ofType: "html")!
+    fileprivate func playerHTMLURL() -> URL? {
+        return Bundle.module.url(forResource: "YTPlayer", withExtension: "html")
     }
     
-    fileprivate func htmlStringWithFilePath(_ path: String) -> String? {
+    fileprivate func htmlStringWithFileURL(_ url: URL?) -> String? {
+        guard let url = url else {
+            printLog("Lookup error: no HTML file found in package resources")
+            return nil
+        }
         
         do {
-            
-            // Get HTML string from path
-            let htmlString = try NSString(contentsOfFile: path, encoding: String.Encoding.utf8.rawValue)
-            
-            return htmlString as String
-            
-        } catch _ {
-            
+            // Get HTML string from package resource URL
+            return try String(contentsOf: url, encoding: .utf8)
+        } catch {
             // Error fetching HTML
-            printLog("Lookup error: no HTML file found for path")
-            
+            printLog("Lookup error: unable to read HTML file at resource URL")
             return nil
         }
     }

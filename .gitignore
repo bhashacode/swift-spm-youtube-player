@@ -17,3 +17,7 @@ DerivedData
 .idea/
 *.hmap
 *.xccheckout
+
+# Swift Package Manager
+.build/
+.swiftpm/
